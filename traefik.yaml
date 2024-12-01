@@ -1,0 +1,31 @@
+version: "3.7"
+
+services:
+
+  traefik:
+    image: traefik:latest
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"  # Usando o modo Docker diretamente
+      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=minha_rede"  # Rede 'minha_rede' do tipo bridge
+      - "--entrypoints.web.address=:80"  # Usando HTTP
+      - "--log.level=DEBUG"
+      - "--log.format=common"
+      - "--log.filePath=/var/log/traefik/traefik.log"
+      - "--accesslog=true"
+      - "--accesslog.filepath=/var/log/traefik/access-log"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    ports:
+      - target: 80
+        published: 80
+        mode: host
+    networks:
+      - minha_rede  # Rede bridge
+
+networks:
+  minha_rede:
+    external: true
+    name: minha_rede
